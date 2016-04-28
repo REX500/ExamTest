@@ -10,11 +10,14 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -100,7 +103,7 @@ public class PFDGames extends Application{
         borderPane.setCenter(box);
     }
     TableView<Employee> table;
-    private void tableMethod() throws SQLException {
+    private void employeeMethod() throws SQLException {
         TableColumn<Employee, Integer> empId = new TableColumn<>("Employee id");
         empId.setMinWidth(50);
         empId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -136,6 +139,8 @@ public class PFDGames extends Application{
         table.setItems(getEmployees());
         table.getColumns().addAll(empId,empFName, empLName, empMail, empCity, empAddress, empZip, empPhone, empBankAcc, empCpr);
         table.setEditable(true);
+
+        borderPane.setCenter(table);
     }
 
     private ObservableList<Employee> getEmployees() throws SQLException {
@@ -171,11 +176,9 @@ public class PFDGames extends Application{
         Menu help = new Menu("Help");
         Menu view = new Menu("View");
 
-        MenuItem fileNew = new MenuItem("New");
-        MenuItem fileSaveAs = new MenuItem("Save As");
-        MenuItem fileSave = new MenuItem("Save");
-        MenuItem fileOpen = new MenuItem("Open");
-        MenuItem fileOpenFile = new MenuItem("Open File...");
+        MenuItem fileNew = new MenuItem("Games");
+        MenuItem fileSaveAs = new MenuItem("Customers");
+        MenuItem fileSave = new MenuItem("Employee");
         MenuItem fileClose = new MenuItem("Close");
         MenuItem viewFull = new MenuItem("Full Screen");
         MenuItem viewExitFull = new MenuItem("Normal View");
@@ -200,10 +203,25 @@ public class PFDGames extends Application{
 
         // adding menu items to the menus
 
-        file.getItems().addAll(fileNew, fileSave, fileSaveAs,fileOpen, fileOpenFile,fileClose);
+        file.getItems().addAll(fileNew, fileSave, fileSaveAs,fileClose);
         edit.getItems().addAll(editColour);
         help.getItems().addAll(helpHelp);
         view.getItems().addAll(viewFull, viewExitFull);
+
+        fileNew.setOnAction(e -> {
+            try {
+                gameMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        fileSave.setOnAction(e -> {
+            try {
+                employeeMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
 
         menu = new MenuBar();
         menu.getMenus().addAll(file,edit,view,help);
@@ -212,7 +230,7 @@ public class PFDGames extends Application{
 
         button3.setOnAction(e -> {
             try {
-                tableMethod();
+                employeeMethod();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -267,7 +285,26 @@ public class PFDGames extends Application{
         tableGame.getColumns().addAll(gameName, gameGenre, gamePegi, gamePlatform, gamePrice, gameQuantity);
         tableGame.setEditable(true);
 
-        borderPane.setCenter(tableGame);
+        VBox vbox = new VBox(5);
+        HBox hbox = new HBox(5);
+
+        hbox.getChildren().addAll(button1, button2, button3);
+        vbox.getChildren().addAll(tableGame, hbox);
+
+        //adding action listener to the buttons, so we can have some actual functionality
+        button1.setOnAction(e-> {
+            Game game = tableGame.getSelectionModel().getSelectedItem();
+            String gameNameMethod = game.getName();
+            String gameGenreMetdo = game.getGenre();
+            String gamePegiMethod = game.getPEGI();
+            int gameQuanMethod = game.getQuantity();
+            String gamePlatMethod = game.getPlatform();
+            String gamePriceMethod = game.getPrice();
+
+            gameInfoMethod(gameNameMethod, gameGenreMetdo, gamePegiMethod, gameQuanMethod,gamePlatMethod, gamePriceMethod);
+        });
+
+        borderPane.setCenter(vbox);
 
     }
 
@@ -281,5 +318,46 @@ public class PFDGames extends Application{
             list.add(gameArray.get(i));
         }
         return list;
+    }
+
+    private void gameInfoMethod(String gameName, String gameGenre, String gamePegi, int gameQuan, String gamePlat, String gamePrice){
+        VBox vBox = new VBox(10);
+        HBox hBox = new HBox();
+
+        VBox boxWithLabels = new VBox(3);
+        label1 = new Label(gameName);
+        label2 = new Label(gameGenre);
+        label3 = new Label(gamePegi);
+        label4 = new Label(gamePlat);
+        label5 = new Label(gamePrice);
+        Label label6 = new Label(String.valueOf(gameQuan));
+
+        button1 = new Button("Rent");
+        button2 = new Button("Add new copies");
+
+        // load the image
+        // connecting the actual game with a .jpg extension
+        String nameExt = gameName+".jpg";
+        Image image = new Image(nameExt);
+
+        // resizes the image to have width of 100 while preserving the ratio and using
+        // higher quality filtering method; this ImageView is also cached to
+        // improve performance
+        ImageView iv2 = new ImageView();
+        iv2.setImage(image);
+        iv2.setFitWidth(100);
+        iv2.setPreserveRatio(true);
+        iv2.setSmooth(true);
+        iv2.setCache(true);
+
+        VBox vBox1 = new VBox(2);
+        vBox1.getChildren().addAll(label1, label2, label3, label4, label5, label6);
+
+        VBox vBox2 = new VBox(3);
+        vBox2.getChildren().addAll(button1, button2);
+
+        hBox.getChildren().addAll(iv2, vBox1, vBox2);
+
+        borderPane.setCenter(hBox);
     }
 }
