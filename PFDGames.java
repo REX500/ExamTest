@@ -1,5 +1,6 @@
 package GUILayer;
 
+import AppLayer.Costumer;
 import AppLayer.Employee;
 import AppLayer.Game;
 import dbAcces.dataBase;
@@ -222,6 +223,13 @@ public class PFDGames extends Application{
                 e1.printStackTrace();
             }
         });
+        fileSaveAs.setOnAction(e -> {
+            try {
+                costumerTable();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
 
         menu = new MenuBar();
         menu.getMenus().addAll(file,edit,view,help);
@@ -238,6 +246,13 @@ public class PFDGames extends Application{
         button1.setOnAction(e -> {
             try {
                 gameMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button2.setOnAction(e -> {
+            try {
+                costumerTable();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -359,5 +374,62 @@ public class PFDGames extends Application{
         hBox.getChildren().addAll(iv2, vBox1, vBox2);
 
         borderPane.setCenter(hBox);
+    }
+    TableView<Costumer> costTable;
+    private void costumerTable() throws SQLException {
+        //making a table bellow
+        TableColumn<Costumer, String> costFname = new TableColumn<>("First Name");
+        costFname.setMinWidth(100);
+        costFname.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+
+        TableColumn<Costumer, String> costLname = new TableColumn<>("Last Name");
+        costLname.setMinWidth(100);
+        costLname.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+
+        TableColumn<Costumer, String> costMail = new TableColumn<>("Mail");
+        costMail.setMinWidth(100);
+        costMail.setCellValueFactory(new PropertyValueFactory<>("mail"));
+
+        TableColumn<Costumer, String> costCity = new TableColumn<>("City");
+        costCity.setMinWidth(100);
+        costCity.setCellValueFactory(new PropertyValueFactory<>("city"));
+
+        TableColumn<Costumer, Integer> costAdd = new TableColumn<>("Address");
+        costAdd.setMinWidth(100);
+        costAdd.setCellValueFactory(new PropertyValueFactory<>("address"));
+
+        TableColumn<Costumer, Integer> costZip = new TableColumn<>("Zip");
+        costZip.setMinWidth(100);
+        costZip.setCellValueFactory(new PropertyValueFactory<>("zip"));
+
+        TableColumn<Costumer, Integer> costPhone = new TableColumn<>("Phone Number");
+        costPhone.setMinWidth(100);
+        costPhone.setCellValueFactory(new PropertyValueFactory<>("phoneNum"));
+
+        TableColumn<Costumer, Integer> costBank = new TableColumn<>("Bank Account Number");
+        costBank.setMinWidth(100);
+        costBank.setCellValueFactory(new PropertyValueFactory<>("bankAcc"));
+
+        TableColumn<Costumer, String> costCpr = new TableColumn<>("CPR");
+        costCpr.setMinWidth(100);
+        costCpr.setCellValueFactory(new PropertyValueFactory<>("cpr"));
+
+
+        costTable = new TableView<>();
+        costTable.setItems(getCostumers());
+        costTable.getColumns().addAll(costFname, costLname, costMail, costCity, costAdd, costZip, costPhone, costBank, costCpr);
+        costTable.setEditable(true);
+
+        borderPane.setCenter(costTable);
+    }
+
+    private ObservableList<Costumer> getCostumers() throws SQLException {
+        ObservableList<Costumer> list = FXCollections.observableArrayList();
+        dataBase db = new dataBase();
+        ArrayList<Costumer> costumerArray = db.getCostumers();
+        for(int i = 0; i < costumerArray.size(); i++){
+            list.add(costumerArray.get(i));
+        }
+        return list;
     }
 }

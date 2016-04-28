@@ -13,6 +13,17 @@ public class Costumer {
     private String zip;
     private String phoneNum;
     private String bankAcc;
+    private String cpr;
+
+    public String getCpr() {
+        return cpr;
+    }
+
+    public void setCpr(String cpr) {
+        this.cpr = cpr;
+    }
+
+
 
     public String getBankAcc() {
         return bankAcc;
@@ -78,7 +89,7 @@ public class Costumer {
         this.phoneNum = phoneNum;
     }
 
-    public Costumer(String firstName, String lastName, String mail, String city, String address, String zip, String phoneNum, String bankAcc){
+    public Costumer(String cpr,String firstName, String lastName, String mail, String city, String address, String zip, String phoneNum, String bankAcc){
         this.firstName = firstName;
         this.lastName = lastName;
         this.mail = mail;
@@ -87,6 +98,7 @@ public class Costumer {
         this.zip = zip;
         this.phoneNum = phoneNum;
         this.bankAcc = bankAcc;
+        this.cpr = cpr;
     }
 
     public Costumer(){

@@ -1,5 +1,6 @@
 package dbAcces;
 
+import AppLayer.Costumer;
 import AppLayer.Employee;
 import AppLayer.Game;
 
@@ -71,5 +72,34 @@ public class dataBase {
             e.printStackTrace();
         }
         return gameArray;
+    }
+
+    ArrayList<Costumer> costumerArray;
+    public ArrayList<Costumer> getCostumers() throws SQLException{
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+            ResultSet rs = s.executeQuery("SELECT * FROM costumer");
+            costumerArray = new ArrayList<>();
+            while(rs.next()){
+                String fname = rs.getString("First_name");
+                String lname = rs.getString("Last_name");
+                String mail = rs.getString("Mail");
+                String city = rs.getString("City");
+                String address = rs.getString("Address");
+                String zip = rs.getString("Zip");
+                String phone = rs.getString("PhoneNum");
+                String bank = rs.getString("Bank_acc");
+                String cpr = rs.getString("CPR");
+
+                Costumer c = new Costumer(fname, lname, mail, city, address, zip, phone, bank, cpr);
+                costumerArray.add(c);
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return costumerArray;
     }
 }
