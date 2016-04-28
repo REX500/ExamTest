@@ -60,8 +60,10 @@ public class dataBase {
                 String pegi = rs.getString("PEGI");
                 String platform = rs.getString("Platform");
                 String price = rs.getString("Price");
+                String quantity = rs.getString("Quantity");
+                int q = Integer.parseInt(quantity);
 
-                Game game = new Game(name, genre, pegi, platform, price);
+                Game game = new Game(name, genre, pegi, platform, price,q);
                 gameArray.add(game);
             }
 

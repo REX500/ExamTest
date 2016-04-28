@@ -9,6 +9,15 @@ public class Game {
     private String PEGI;
     private String price;
     private String platform;
+    private int quantity;
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 
     public String getName() {
         return name;
@@ -50,12 +59,13 @@ public class Game {
         this.platform = platform;
     }
 
-    public Game(String name, String genre, String PEGI, String platform, String price){
+    public Game(String name, String genre, String PEGI, String platform, String price, int quantity){
         this.name = name;
         this.genre = genre;
         this.PEGI = PEGI;
         this.platform = platform;
-        this.platform = price;
+        this.price = price;
+        this.quantity = quantity;
     }
 
     public Game(){

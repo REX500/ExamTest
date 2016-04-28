@@ -10,6 +10,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -184,6 +187,17 @@ public class PFDGames extends Application{
 
         MenuItem helpHelp = new MenuItem("Help");
 
+        //adding actions to the menu items
+        fileClose.setOnAction(e-> System.exit(0));
+
+        //adding key accelerators to the menu items
+        //fileOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        fileClose.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
+        //fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        //fileSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        //viewFull.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
+        //viewExitFull.setAccelerator(new KeyCodeCombination(KeyCode.G, KeyCombination.CONTROL_DOWN));
+
         // adding menu items to the menus
 
         file.getItems().addAll(fileNew, fileSave, fileSaveAs,fileOpen, fileOpenFile,fileClose);
@@ -194,9 +208,78 @@ public class PFDGames extends Application{
         menu = new MenuBar();
         menu.getMenus().addAll(file,edit,view,help);
 
+        //adding actions to buttons
+
+        button3.setOnAction(e -> {
+            try {
+                tableMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button1.setOnAction(e -> {
+            try {
+                gameMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+
         borderPane.setCenter(grid);
         borderPane.setTop(menu);
-        window.setHeight(500);
-        window.setWidth(400);
+        window.setHeight(400);
+        window.setWidth(500);
+    }
+
+    TableView<Game> tableGame;
+    private void gameMethod() throws SQLException {
+        button1 = new Button("Info");
+        button2 = new Button("Rent");
+        button3 = new Button("Delete");
+
+        //making a table bellow
+        TableColumn<Game, String> gameName = new TableColumn<>("Game");
+        gameName.setMinWidth(100);
+        gameName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Game, String> gameGenre = new TableColumn<>("Genre");
+        gameGenre.setMinWidth(100);
+        gameGenre.setCellValueFactory(new PropertyValueFactory<>("genre"));
+
+        TableColumn<Game, String> gamePegi = new TableColumn<>("PEGI");
+        gamePegi.setMinWidth(100);
+        gamePegi.setCellValueFactory(new PropertyValueFactory<>("PEGI"));
+
+        TableColumn<Game, String> gamePlatform = new TableColumn<>("Platform");
+        gamePlatform.setMinWidth(100);
+        gamePlatform.setCellValueFactory(new PropertyValueFactory<>("platform"));
+
+        TableColumn<Game, Integer> gamePrice = new TableColumn<>("Price");
+        gamePrice.setMinWidth(100);
+        gamePrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        TableColumn<Game, Integer> gameQuantity = new TableColumn<>("Quantity");
+        gameQuantity.setMinWidth(100);
+        gameQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        tableGame = new TableView<>();
+        tableGame.setItems(getGames());
+        tableGame.getColumns().addAll(gameName, gameGenre, gamePegi, gamePlatform, gamePrice, gameQuantity);
+        tableGame.setEditable(true);
+
+        borderPane.setCenter(tableGame);
+
+    }
+
+    private ObservableList<Game> getGames() throws SQLException {
+        ObservableList<Game> list = FXCollections.observableArrayList();
+        // we need to use the array list with employee objects to fill up the list
+        // after that we will return this list to be used by a table to fill up itself
+        dataBase db = new dataBase();
+        ArrayList<Game> gameArray = db.getGames();
+        for(int i = 0; i< gameArray.size(); i++){
+            list.add(gameArray.get(i));
+        }
+        return list;
     }
 }
