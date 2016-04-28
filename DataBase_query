@@ -1,0 +1,68 @@
+CREATE DATABASE examTest;
+
+USE examTest;
+
+CREATE TABLE Games(
+	Game_id int AUTO_INCREMENT NOT NULL UNIQUE,
+    Name varchar(40),
+    Genre varchar(40),
+    PEGI varchar(40),
+    Price int,
+    Platform varchar(40),
+    Quantity int
+);
+
+CREATE TABLE Employee(
+	Employee_id int AUTO_INCREMENT NOT NULL UNIQUE,
+    First_name varchar(40),
+    Last_name varchar(40),
+    Mail varchar(40),
+    City varchar(40),
+    Address varchar(40),
+    Zip int,
+    PhoneNum varchar(40),
+    Bank_acc int,
+    CPR varchar(40)
+);
+
+CREATE TABLE Costumer(
+	Costumer_id int AUTO_INCREMENT NOT NULL UNIQUE,
+    First_name varchar(40),
+    Last_name varchar(40),
+    Mail varchar(40),
+    City varchar(40),
+    Address varchar(40),
+    Zip int,
+    PhoneNum varchar(40),
+    Bank_acc int,
+    CPR varchar(40)
+);
+
+CREATE TABLE Rented_game(
+	Game_id int,
+    Name varchar(40),
+    Genre varchar(40),
+    Date varchar(40),
+    Platform varchar(40)
+);
+
+INSERT INTO Costumer
+	(First_name, Last_name, Mail, City, Address, Zip, PhoneNum, Bank_acc, CPR)
+    values
+    ('Mark', 'Knopfler', 'Mark@yahoo.com','London', 'Ziglane12', 10211, '+2321392', 322323,'23232-3222'),
+    ('Eric', 'Clapton', 'eric@yahoo.com','London', 'Ziglane12', 10211, '+2561392', 221023,'43232-3222'),
+    ('Richard', 'Geere', 'rich@yahoo.com','New-York', 'Broadway 12', 3212, '+9826511', 32984,'23002-3222'),
+    ('Leonardo', 'DiCaprio', 'leo@yahoo.com','Atlanta', 'Lane Eight', 111, '+2312092', 329823,'23000-3222'),
+    ('Tom', 'Cruise', 'tom@yahoo.com','Los Angeles', 'Mayland', 2984, '+588000', 100398,'1000-0874'),
+    ('Thomas', 'Muller', 'thom@yahoo.com','Plymouth', 'Eggline 25a', 20883, '+1003259', 5600,'3212-5502');
+    
+SELECT * FROM costumer;
+    
+INSERT INTO Employee
+	(First_name, Last_name, Mail, City, Address, Zip, PhoneNum, Bank_acc, CPR)
+    VALUES
+    ('Patrik','Ando', 'patrik@gmail.com', 'Budapest','Zsack', '2003', '+897958087345', '48206698', '040698-7155'),
+    ('Filip','Malek', 'filatekila@gmail.com', 'Zagreb','Lascinska', '10000', '+385958087396', '321232', '040696-2911');
+    
+SELECT * FROM Employee;
+    
