@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,6 +27,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by Filip on 25-04-2016.
@@ -39,7 +41,7 @@ public class PFDGames extends Application{
     BorderPane borderPane;
     Button button1,button2, button3, button4, button5;
     Label label1, label2, label3, label4, label5;
-
+    int checkLogIn = 0;
     @Override
     public void start(Stage s){
         window = s;
@@ -67,14 +69,20 @@ public class PFDGames extends Application{
         text1.setMaxWidth(100);
         text2.setMaxWidth(100);
 
-        label1.textProperty().bind(text1.textProperty());
-
         button1 = new Button("Log In");
 
         VBox box = new VBox();
         box.setSpacing(10);
         box.setPadding(new Insets(15,0,0,70));
         box.getChildren().addAll(label1, text1, text2, button1);
+
+        if(checkLogIn>0){
+            borderPane.setTop(null);
+            borderPane.setBottom(null);
+            window.setWidth(270);
+            window.setHeight(200);
+            window.setTitle("Log in");
+        }
 
         //testing if the input is the same as the employee's data
 
@@ -94,7 +102,7 @@ public class PFDGames extends Application{
                 if(name.equals(realName) && pass.equals(realCPR)){
                     // if the credentials are correct we switch the screen into the table method that contains all
                     // the employee's that we currently have
-                    System.out.println("Picka");
+                    window.setTitle(realName+" is using the system");
                     logInScreen();
                     break;
                 }
@@ -143,7 +151,103 @@ public class PFDGames extends Application{
         table.getColumns().addAll(empId,empFName, empLName, empMail, empCity, empAddress, empZip, empPhone, empBankAcc, empCpr);
         table.setEditable(true);
 
-        borderPane.setCenter(table);
+        button1 = new Button("Info");
+
+
+
+        button1.setOnAction(e->{
+            Employee emp = table.getSelectionModel().getSelectedItem();
+            String fname, lname, mail, city, address,zip, phone, bank, cpr;
+            int id;
+            fname = emp.getFirstName();
+            lname = emp.getLastName();
+            mail = emp.getMail();
+            city = emp.getCity();
+            address = emp.getAddress();
+            zip = emp.getZip();
+            phone = emp.getPhoneNum();
+            bank = emp.getBankAcc();
+            cpr = emp.getCPR();
+            id = emp.getId();
+            employeeInfo(id, fname, lname, mail, city, address, zip, phone, bank, cpr);
+        });
+
+        VBox box = new VBox(6);
+
+        box.getChildren().addAll(table, button1);
+        borderPane.setCenter(box);
+    }
+    // method that display an employee with his name and offers the user to fire him and so on...
+
+    private void employeeInfo(int id, String fname, String lname, String mail, String city, String add, String zip, String phone, String bank, String cpr){
+        VBox mainVBox = new VBox(10);
+        HBox mainHBox = new HBox(6);
+        VBox infoVBox = new VBox(4);
+        VBox btnVBox = new VBox(4);
+
+        label1 = new Label("ID: "+id);
+        label2 = new Label("First Name: "+fname);
+        label3 = new Label("Last Name: "+lname);
+        label4 = new Label("Mail Address: "+mail);
+        label5 = new Label("City: "+city);
+        Label label6 = new Label("Address: "+add);
+        Label label7 = new Label("Zip: "+zip);
+        Label label8 = new Label("Phone Number: "+phone);
+        Label label9 = new Label("Bank Account Number: "+bank);
+        Label label10 = new Label("CPR Number: "+cpr);
+
+        button1 = new Button("Fire Employee");
+        button2 = new Button("Back to Employee's");
+        button3 = new Button("Back to Main Menu");
+
+        infoVBox.getChildren().addAll(label1, label2, label3, label4, label5, label6, label7, label8, label9, label10);
+        btnVBox.getChildren().addAll(button1, button2, button3);
+
+        String nameExt = fname+".jpg";
+        Image image = new Image(nameExt);
+
+        // resizes the image to have width of 100 while preserving the ratio and using
+        // higher quality filtering method; this ImageView is also cached to
+        // improve performance
+        ImageView iv2 = new ImageView();
+        iv2.setImage(image);
+        iv2.setFitWidth(150);
+        iv2.setPreserveRatio(true);
+        iv2.setSmooth(true);
+        iv2.setCache(true);
+
+        //adding action listeners to the buttons
+        button1.setOnAction(e-> {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Are you sure");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to fire this employee?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK
+                dataBase db = new dataBase();
+                try {
+                    db.deleteEmployee(fname);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        });
+        button2.setOnAction(e -> {
+            try {
+                employeeMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button3.setOnAction(e-> logInScreen());
+
+        mainHBox.getChildren().addAll(iv2, infoVBox, btnVBox);
+
+        borderPane.setCenter(mainHBox);
     }
 
     private ObservableList<Employee> getEmployees() throws SQLException {
@@ -179,10 +283,11 @@ public class PFDGames extends Application{
         Menu help = new Menu("Help");
         Menu view = new Menu("View");
 
-        MenuItem fileNew = new MenuItem("Games");
-        MenuItem fileSaveAs = new MenuItem("Customers");
-        MenuItem fileSave = new MenuItem("Employee");
-        MenuItem fileClose = new MenuItem("Close");
+        MenuItem fileGames = new MenuItem("Games");
+        MenuItem fileCustomers = new MenuItem("Customers");
+        MenuItem fileEmployee = new MenuItem("Employee");
+        MenuItem fileLogOut = new MenuItem("Log out");
+        MenuItem fileExit = new MenuItem("Exit");
         MenuItem viewFull = new MenuItem("Full Screen");
         MenuItem viewExitFull = new MenuItem("Normal View");
 
@@ -194,11 +299,11 @@ public class PFDGames extends Application{
         MenuItem helpHelp = new MenuItem("Help");
 
         //adding actions to the menu items
-        fileClose.setOnAction(e-> System.exit(0));
+        fileExit.setOnAction(e-> System.exit(0));
 
         //adding key accelerators to the menu items
         //fileOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
-        fileClose.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
+        fileExit.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN));
         //fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         //fileSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         //viewFull.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
@@ -206,30 +311,45 @@ public class PFDGames extends Application{
 
         // adding menu items to the menus
 
-        file.getItems().addAll(fileNew, fileSave, fileSaveAs,fileClose);
+        file.getItems().addAll(fileGames, fileCustomers, fileEmployee,fileLogOut,fileExit);
         edit.getItems().addAll(editColour);
         help.getItems().addAll(helpHelp);
         view.getItems().addAll(viewFull, viewExitFull);
 
-        fileNew.setOnAction(e -> {
+        fileGames.setOnAction(e -> {
             try {
                 gameMethod();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
         });
-        fileSave.setOnAction(e -> {
+        fileEmployee.setOnAction(e -> {
             try {
                 employeeMethod();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
         });
-        fileSaveAs.setOnAction(e -> {
+        fileCustomers.setOnAction(e -> {
             try {
                 costumerTable();
             } catch (SQLException e1) {
                 e1.printStackTrace();
+            }
+        });
+        fileLogOut.setOnAction(e->{
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Are you sure?");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to log out?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                checkLogIn++;
+                // ... user chose OK
+                logIn();
+            } else {
+                // ... user chose CANCEL or closed the dialog
             }
         });
 
@@ -485,7 +605,90 @@ public class PFDGames extends Application{
         costTable.getColumns().addAll(costFname, costLname, costMail, costCity, costAdd, costZip, costPhone, costBank, costCpr);
         costTable.setEditable(true);
 
-        borderPane.setCenter(costTable);
+        button1 = new Button("Info");
+        button1.setOnAction(e->{
+            Costumer emp = costTable.getSelectionModel().getSelectedItem();
+            String fname, lname, mail, city, address,zip, phone, bank, cpr;
+            int id;
+            fname = emp.getFirstName();
+            lname = emp.getLastName();
+            mail = emp.getMail();
+            city = emp.getCity();
+            address = emp.getAddress();
+            zip = emp.getZip();
+            phone = emp.getPhoneNum();
+            bank = emp.getBankAcc();
+            cpr = emp.getCpr();
+            customerInfo(fname, lname, mail, city, address, zip, phone, bank, cpr);
+        });
+
+        VBox box = new VBox(8);
+        box.getChildren().addAll(costTable, button1);
+
+        borderPane.setCenter(box);
+    }
+
+    // method that displays the customer info is bellow
+
+    private void customerInfo(String fname, String lname, String mail, String city, String add, String zip, String phone, String bank, String cpr){
+
+        HBox mainHBox = new HBox(6);
+        VBox infoVBox = new VBox(4);
+        VBox btnVBox = new VBox(4);
+
+        label2 = new Label("First Name: "+fname);
+        label3 = new Label("Last Name: "+lname);
+        label4 = new Label("Mail Address: "+mail);
+        label5 = new Label("City: "+city);
+        Label label6 = new Label("Address: "+add);
+        Label label7 = new Label("Zip: "+zip);
+        Label label8 = new Label("Phone Number: "+phone);
+        Label label9 = new Label("Bank Account Number: "+bank);
+        Label label10 = new Label("CPR Number: "+cpr);
+
+        button1 = new Button("Delete customer");
+        button2 = new Button("Back to Customer's");
+        button3 = new Button("Back to Main Menu");
+
+        infoVBox.getChildren().addAll(label2, label3, label4, label5, label6, label7, label8, label9, label10);
+        btnVBox.getChildren().addAll(button1, button2, button3);
+
+        //adding action listeners to the buttons
+        button1.setOnAction(e-> {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Are you sure");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to delete this customer?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                // ... user chose OK
+                dataBase db = new dataBase();
+                try {
+                    db.deleteCustomer(cpr);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            } else {
+                // ... user chose CANCEL or closed the dialog
+            }
+        });
+        button2.setOnAction(e -> {
+            try {
+                costumerTable();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button3.setOnAction(e-> logInScreen());
+
+        mainHBox.getChildren().addAll(infoVBox, btnVBox);
+
+        borderPane.setCenter(mainHBox);
+
+
+
+
     }
 
     private ObservableList<Costumer> getCostumers() throws SQLException {
@@ -517,7 +720,7 @@ public class PFDGames extends Application{
             e1.printStackTrace();
         }
         // when we execute that we get a message
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert a = new Alert(AlertType.CONFIRMATION);
         a.setTitle("You have bought a game!");
         a.setContentText("Game purchase complete!");
         a.setContentText(null);

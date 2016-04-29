@@ -135,4 +135,33 @@ public class dataBase {
         }
 
     }
+
+    public void deleteEmployee(String firstName)throws SQLException{
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+
+            String insert1= String.format("DELETE FROM employee WHERE First_name = '%s' ", firstName);
+            s.executeUpdate(insert1);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void deleteCustomer(String cpr)throws  SQLException{
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+
+            String insert1= String.format("DELETE FROM costumer WHERE CPR = '%s' ", cpr);
+            s.executeUpdate(insert1);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
