@@ -89,7 +89,7 @@ public class Costumer {
         this.phoneNum = phoneNum;
     }
 
-    public Costumer(String cpr,String firstName, String lastName, String mail, String city, String address, String zip, String phoneNum, String bankAcc){
+    public Costumer(String firstName, String lastName, String mail, String city, String address, String zip, String phoneNum, String bankAcc,String cpr){
         this.firstName = firstName;
         this.lastName = lastName;
         this.mail = mail;

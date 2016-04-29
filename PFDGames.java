@@ -23,7 +23,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Filip on 25-04-2016.
@@ -318,9 +320,70 @@ public class PFDGames extends Application{
 
             gameInfoMethod(gameNameMethod, gameGenreMetdo, gamePegiMethod, gameQuanMethod,gamePlatMethod, gamePriceMethod);
         });
+        //handling the rent button aka button2
+        button2.setOnAction(e-> {
+            Game g = tableGame.getSelectionModel().getSelectedItem();
+            String nemeGame = g.getName();
+            String nameGenre = g.getGenre();
+            String pegi = g.getPEGI();
+            String price = g.getPrice();
+            String plat = g.getPlatform();
+            int copies = g.getQuantity();
+            sellMethod(nemeGame, copies, nameGenre, pegi, price, plat);
+        });
 
         borderPane.setCenter(vbox);
 
+    }
+
+    private void sellMethod(String name, int copies, String genre, String pegi, String price, String plat){
+        label1 = new Label("Costumer Name: ");
+        label2 = new Label("CPR: ");
+        text1 = new TextField();
+        text2 = new TextField();
+        button1 = new Button("Rent");
+        button2 = new Button("Cancel");
+
+        grid = new GridPane();
+        grid.setHgap(8);
+        grid.setVgap(10);
+        grid.setConstraints(label1, 0,0);
+        grid.setConstraints(text1, 1,0);
+        grid.setConstraints(label2, 0,1);
+        grid.setConstraints(text2, 1,1);
+        grid.setConstraints(button2, 0,2);
+        grid.setConstraints(button1, 1,2);
+
+        grid.getChildren().addAll(label1,label2, button2, button1, text1, text2);
+
+        button2.setOnAction(e -> {
+            try {
+                gameMethod();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button1.setOnAction(e-> {
+            dataBase db = new dataBase();
+            ArrayList<Costumer> costArray = null;
+            try {
+                costArray = db.getCostumers();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            String customerName = text1.getText();
+            String customerCpr = text2.getText();
+            for(int i = 0; i < costArray.size() ; i++){
+                String realName = costArray.get(i).getFirstName();
+                String realCPR = costArray.get(i).getCpr();
+                if(customerName.equals(realName) && customerCpr.equals(realCPR)){
+                    // if the costumer exists we will sell the game to him
+                    sellGameMethod(name, genre, plat,customerName, customerCpr);
+                }
+            }
+        });
+
+        borderPane.setCenter(grid);
     }
 
     private ObservableList<Game> getGames() throws SQLException {
@@ -375,6 +438,8 @@ public class PFDGames extends Application{
 
         borderPane.setCenter(hBox);
     }
+
+
     TableView<Costumer> costTable;
     private void costumerTable() throws SQLException {
         //making a table bellow
@@ -431,5 +496,32 @@ public class PFDGames extends Application{
             list.add(costumerArray.get(i));
         }
         return list;
+    }
+
+    private void sellGameMethod(String name, String genre, String plat, String customerName, String customerCpr){
+        dataBase db = new dataBase();
+        try {
+            db.sellGame(name);
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
+        //here we have to put the game into the table to be connected with a customer
+        // take the gameID, game genre, pegi rating and so on along with a user id or a cpr
+        // and put it into a rented game table
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        try {
+            db.sellFillTable(name, genre,dateFormat.format(date), plat, customerCpr );
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        // when we execute that we get a message
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setTitle("You have bought a game!");
+        a.setContentText("Game purchase complete!");
+        a.setContentText(null);
+        a.showAndWait();
+        logInScreen();
     }
 }

@@ -14,7 +14,7 @@ public class dataBase {
 
     ArrayList<Employee> empArray;
     static final String JDBC_DRIVER  = "com.mysql.jdbc.Driver";
-    static final String DATABASE_URL = "jdbc:mysql://localhost:3306/examTest";
+    static final String DATABASE_URL = "jdbc:mysql://localhost:3306/examTest?useSSl=true";
     static Connection con;
 
     public ArrayList<Employee> getEmployees() throws SQLException {
@@ -101,5 +101,38 @@ public class dataBase {
             e.printStackTrace();
         }
         return costumerArray;
+    }
+
+    public void sellGame(String name) throws SQLException {
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+            //String update = "UPDATE games SET Quantity= Quantity -1  WHERE Name "+name;
+            String update1 = String.format("UPDATE games SET Quantity= Quantity -1  WHERE Name = '%s'", name);
+            s.executeUpdate(update1);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sellFillTable(String name, String genre, String date, String platform, String customerID)throws SQLException{
+
+        // this method will fill up the rented game table with the required data
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+            //String command = (name+","+genre+","+date+","+platform+","+customerID+";");
+            //String insert = "INSERT INTO rented_game (Name, Genre, Date, Platform, Costumer_id) VALUES "+command;
+
+            String insert1= String.format("INSERT INTO rented_game (Name, Genre, Date, Platform, Costumer_id) VALUES ('%s','%s','%s','%s','%s')",name, genre, date, platform,customerID);
+            s.executeUpdate(insert1);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
