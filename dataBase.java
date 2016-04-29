@@ -164,4 +164,33 @@ public class dataBase {
             e.printStackTrace();
         }
     }
+
+    public void addCustomer(String fname, String lname, String mail, String add, String city, int zip, String num, String bank, String cpr) throws SQLException {
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+
+            String insertRow= String.format("INSERT INTO costumer (First_name, Last_name, Mail, City, Address, Zip, PhoneNum, Bank_acc, CPR) VALUES ('%s','%s','%s','%s','%s','%d','%s','%s','%s')"
+            , fname, lname, mail, add, city, zip, num, bank, cpr);
+            s.executeUpdate(insertRow);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addCopies(String name,int copy)throws SQLException{
+        try {
+            Class.forName(JDBC_DRIVER);
+            con = DriverManager.getConnection(DATABASE_URL, "root", "password");
+            Statement s = con.createStatement();
+
+            String insert1= String.format("UPDATE games SET Quantity = Quantity + '%d' WHERE Name = '%s'",copy, name);
+            s.executeUpdate(insert1);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }

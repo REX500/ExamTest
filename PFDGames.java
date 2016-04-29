@@ -269,14 +269,19 @@ public class PFDGames extends Application{
         button2 = new Button("Customers");
         button3 = new Button("Employee's");
 
-        grid = new GridPane();
-        grid.setHgap(8);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(4,4,4,4));
-        grid.setConstraints(button1, 0,0);
-        grid.setConstraints(button2, 1,0);
-        grid.setConstraints(button3, 0,1);
-        grid.getChildren().addAll(button1, button2, button3);
+        //making a search bar bellow
+        TextField searchBar = new TextField();
+        searchBar.setPromptText("Search games...");
+        searchBar.setMinWidth(400);
+        Button searchButton = new Button("Search");
+        searchButton.setVisible(true);
+
+        //adding these two to the horizontal box
+        HBox searchBox = new HBox(8);
+        searchBox.getChildren().addAll(searchBar, searchButton);
+
+        HBox hBox1 = new HBox(8);
+        hBox1.getChildren().addAll(button1, button2,button3);
 
         Menu file = new Menu("File");
         Menu edit = new Menu("Edit");
@@ -356,6 +361,9 @@ public class PFDGames extends Application{
         menu = new MenuBar();
         menu.getMenus().addAll(file,edit,view,help);
 
+        VBox topBox = new VBox(3);
+        topBox.getChildren().addAll(menu, searchBox);
+
         //adding actions to buttons
 
         button3.setOnAction(e -> {
@@ -379,9 +387,46 @@ public class PFDGames extends Application{
                 e1.printStackTrace();
             }
         });
+        searchButton.setOnAction(e->{
+            String searchResult = searchBar.getText();
+            dataBase db = new dataBase();
+            ArrayList<Game> gameArray = null;
+            try {
+                gameArray = db.getGames();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
 
-        borderPane.setCenter(grid);
-        borderPane.setTop(menu);
+            for(int i = 0 ; i < gameArray.size(); i++){
+                if(searchResult.equals(gameArray.get(i).getName())){
+                    String name = gameArray.get(i).getName();
+                    String genre = gameArray.get(i).getGenre();
+                    String pegi = gameArray.get(i).getPEGI();
+                    String plat = gameArray.get(i).getPlatform();
+                    String price = gameArray.get(i).getPrice();
+                    int quan = gameArray.get(i).getQuantity();
+                    gameInfoMethod(name, genre, pegi, quan, plat, price);
+                    break;
+                }
+                // if search result didnt find any match we display the message
+                int size = gameArray.size();
+                if(size - i ==1){
+                    Alert a = new Alert(AlertType.WARNING);
+                    a.setTitle("No Results");
+                    a.setContentText("We didnt find any matching games");
+                    a.setHeaderText(null);
+                    a.showAndWait();
+                }
+            }
+
+        });
+
+        VBox box = new VBox(20);
+        box.getChildren().addAll(hBox1);
+        box.setPadding(new Insets(20,0,0,0));
+
+        borderPane.setCenter(box);
+        borderPane.setTop(topBox);
         window.setHeight(400);
         window.setWidth(500);
     }
@@ -557,6 +602,27 @@ public class PFDGames extends Application{
         hBox.getChildren().addAll(iv2, vBox1, vBox2);
 
         borderPane.setCenter(hBox);
+
+        button1.setOnAction(e-> sellMethod(gameName, gameQuan, gameGenre, gamePegi,gamePrice, gamePlat));
+        button2.setOnAction(e->{
+            TextInputDialog dialog = new TextInputDialog("walter");
+            dialog.setTitle("Add copies");
+            dialog.setHeaderText(null);
+            dialog.setContentText("How much copies would you like to add?");
+
+            // Traditional way to get the response value.
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()){
+                String copy = result.get();
+                int realCopy = Integer.parseInt(copy);
+                dataBase db = new dataBase();
+                try {
+                    db.addCopies(gameName,realCopy);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
 
@@ -606,6 +672,11 @@ public class PFDGames extends Application{
         costTable.setEditable(true);
 
         button1 = new Button("Info");
+        button2 = new Button("Register a customer");
+        button3 = new Button("Back");
+
+        //adding action listeners to the buttons
+
         button1.setOnAction(e->{
             Costumer emp = costTable.getSelectionModel().getSelectedItem();
             String fname, lname, mail, city, address,zip, phone, bank, cpr;
@@ -621,11 +692,124 @@ public class PFDGames extends Application{
             cpr = emp.getCpr();
             customerInfo(fname, lname, mail, city, address, zip, phone, bank, cpr);
         });
+        button3.setOnAction(e-> logInScreen());
+        button2.setOnAction(e->{
+            addCustomer();
+        });
 
         VBox box = new VBox(8);
-        box.getChildren().addAll(costTable, button1);
+        HBox hBox = new HBox(5);
+        hBox.getChildren().addAll(button1, button2, button3);
+        box.getChildren().addAll(costTable, hBox);
 
         borderPane.setCenter(box);
+    }
+
+    // method that adds a new customer to the database examTest/costumer
+
+    private void addCustomer(){
+
+        label1 = new Label("First Name: ");
+        label2 = new Label("Last Name: ");
+        label3 = new Label("Mail: ");
+        label4 = new Label("City: ");
+        label5 = new Label("Address: ");
+        Label label6 = new Label("Zip: ");
+        Label label7 = new Label("Phone Number: ");
+        Label label8 = new Label("Bank acc: ");
+        Label label9 = new Label("Cpr: ");
+
+        text1 = new TextField();
+        text2 = new TextField();
+        text3 = new TextField();
+        text4 = new TextField();
+        text5 = new TextField();
+        TextField text6 = new TextField();
+        TextField text7 = new TextField();
+        TextField text8 = new TextField();
+        TextField text9 = new TextField();
+
+        button1 = new Button("Save");
+        button2 = new Button("Cancel");
+
+        HBox hBox = new HBox(10);
+        // positioning the buttons bellow the last text field
+        hBox.setPadding(new Insets(0,0,0,120));
+        hBox.getChildren().addAll(button2, button1);
+
+        grid = new GridPane();
+        grid.setHgap(8);
+        grid.setVgap(10);
+
+        grid.setConstraints(label1, 0,0);
+        grid.setConstraints(text2, 0,1);
+        grid.setConstraints(label2, 0,1);
+        grid.setConstraints(text2,1,1);
+        grid.setConstraints(label3, 0,2);
+        grid.setConstraints(text3, 1,2);
+        grid.setConstraints(label4, 0,3);
+        grid.setConstraints(text4, 1,3);
+        grid.setConstraints(label5, 0,4);
+        grid.setConstraints(text5, 1,4);
+        grid.setConstraints(label6, 0,5);
+        grid.setConstraints(text6, 1,5);
+        grid.setConstraints(label7, 0,6);
+        grid.setConstraints(text7, 1,6);
+        grid.setConstraints(label8, 0,7);
+        grid.setConstraints(text8, 1,7);
+        grid.setConstraints(label9, 0,8);
+        grid.setConstraints(text9,1,8);
+
+        grid.getChildren().addAll(label1,label2,label3,label4,label5,label6,label7,label8,label9,text1,text2,text3,text4,text5,text6,text7,text8,text9);
+
+        //adding action listener to buttons bellow
+        // button 2 is the easier one so he will be first
+        button2.setOnAction(e->{
+            try {
+                costumerTable();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+        button1.setOnAction(e->{
+            // now we have to call the method from dataBase class and parse the parameters
+            dataBase db = new dataBase();
+            //taking the parameters from text fields
+            String fname = text1.getText();
+            String lname = text2.getText();
+            String mail = text3.getText();
+            String city = text4.getText();
+            String add = text5.getText();
+            String test = text6.getText();
+            int zip = Integer.parseInt(test);
+            String num = text7.getText();
+            String bank = text8.getText();
+            String cpr = text9.getText();
+
+            // putting them into the addCustomer method
+
+            try {
+                db.addCustomer(fname, lname, mail, city, add, zip, num, bank, cpr);
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Operation Successful!");
+            alert.setHeaderText(null);
+            alert.setContentText("Customer added to the database!");
+            alert.showAndWait();
+            try {
+                costumerTable();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        VBox vBox = new VBox(5);
+        vBox.getChildren().addAll(grid, hBox);
+
+        borderPane.setCenter(vBox);
+        window.setHeight(520);
     }
 
     // method that displays the customer info is bellow
